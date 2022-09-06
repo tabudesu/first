@@ -1,0 +1,43 @@
+﻿<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>バーコードリーダーを使ってみよう！</title>
+</head>
+<body>
+    <h1>入力画面</h1>
+    <p>バーコードリーダーを使用してバーコードを読み取ってください。</p>
+    <textarea id="input" maxlength="13"></textarea>
+
+    <button type="button" onclick="MyFunction1()">
+        確定
+    </button>
+    <p>検索結果</p>
+    <span id="output"></span>
+
+
+    <script>
+        function MyFunction1() {
+            var txt = document.getElementById("input");
+
+            var request = new XMLHttpRequest();
+
+            request.open('GET', 'https://jsonplaceholder.typicode.com/users/1', true);
+            request.responseType = 'json';
+
+            request.onload = function () {
+                var data = this.response;
+                console.log(data);
+            };
+
+            request.send();
+
+
+
+            document.getElementById("output").textContent = txt.textContent;
+        }
+
+    </script>
+</body>
+</html>

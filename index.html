@@ -23,7 +23,14 @@
 
             var request = new XMLHttpRequest();
 
-            request.open('GET', 'https://app.rakuten.co.jp/services/api/IchibaItem/Search/20170706?format=json&keyword=4906456548928&applicationId=1049198666783003336', true);
+            var serarhkeyword = document.getElementById("input");
+            var applicationId = "1049198666783003336";
+
+            var requestStr = "https://app.rakuten.co.jp/services/api/IchibaItem/" +
+                "Search/20170706?format=json&keyword=" +
+                    serarhkeyword + "& applicationId=" + applicationId;
+
+            request.open('GET', requestStr , true);
             request.responseType = 'json';
 
             request.onload = function () {

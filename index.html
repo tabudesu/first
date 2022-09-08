@@ -23,12 +23,12 @@
 
             var request = new XMLHttpRequest();
 
-            var serarhkeyword = toString(document.getElementById("input"));
+            var serarhkeyword = document.getElementById("input").innerText;
             var applicationId = "1049198666783003336";
 
             var requestStr = "https://app.rakuten.co.jp/services/api/IchibaItem/" +
                 "Search/20170706?format=json&keyword=" +
-                    serarhkeyword + "& applicationId=" + applicationId;
+                    serarhkeyword + "&applicationId=" + applicationId;
 
             request.open('GET', requestStr , true);
             request.responseType = 'json';
@@ -36,13 +36,20 @@
             request.onload = function () {
                 var data = this.response;
                 console.log(data);
+                const from_json = JSON.parse(data);
+
+                console.log(from_json); // 確認用
+
+                console.log(from_json.Items[0].Item.itemName) 
+                document.getElementById("output").textContent = from_json.Items[0].Item.itemName;
+
             };
 
             request.send();
 
 
 
-            document.getElementById("output").textContent = txt.textContent;
+            //document.getElementById("output").textContent = txt.textContent;
         }
 
     </script>

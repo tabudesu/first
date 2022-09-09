@@ -10,46 +10,75 @@
     <p>バーコードリーダーを使用してバーコードを読み取ってください。</p>
     <textarea id="input" maxlength="13"></textarea>
 
-    <button type="button" onclick="MyFunction1()">
+    <button type="button" onclick="search()">
         確定
     </button>
-    <p>検索結果</p>
-    <span id="output"></span>
 
+    <button type="button" onclick="allclear()">
+        クリア
+    </button>
+    <p id="janError"></p>
+    <p>検索結果</p>
+    <p>商品名</p><span id="itemName"></span>
+
+    <p>購入価格</p>
+    <textarea id="itemPrice"></textarea>
+    <button type="button" onclick="search()">
+        登録
+    </button>
 
     <script>
-        function MyFunction1() {
-            var txt = document.getElementById("input");
 
-            var request = new XMLHttpRequest();
-
+        function search() {
+            //JAN取得
             var serarhkeyword = document.getElementById("input").innerText;
-            var applicationId = "1049198666783003336";
 
-            var requestStr = "https://app.rakuten.co.jp/services/api/IchibaItem/" +
-                "Search/20170706?format=json&keyword=" +
+            if (serarhkeyword.length == 13) {
+                document.getElementById("janError").textContent = null;
+                document.getElementById("itemPrice").textContent = null;
+
+                var request = new XMLHttpRequest();
+                //アプリケーションID（楽天）
+                var applicationId = "1049198666783003336";
+                //リクエスト作成
+                var requestStr = "https://app.rakuten.co.jp/services/api/IchibaItem/" +
+                    "Search/20170706?format=json&keyword=" +
                     serarhkeyword + "&applicationId=" + applicationId;
 
-            request.open('GET', requestStr , true);
-            request.responseType = 'json';
+                request.open('GET', requestStr, true);
+                request.responseType = 'json';
 
-            request.onload = function () {
-                var data = this.response;
-                console.log(data);
-                const from_json = JSON.parse(data);
+                request.onload = function () {
+                    var data = this.response;
+                    const from_json = JSON.parse(data);
 
-                console.log(from_json); // 確認用
+                    // 確認用
+                    console.log(from_json);
 
-                console.log(from_json.Items[0].Item.itemName) 
-                document.getElementById("output").textContent = from_json.Items[0].Item.itemName;
+                    if (from_json.Items[0] != 0) {
+                        document.getElementById("itemName").textContent = from_json.Items[1].Item.itemName;
+                    }
+                    else {
+                        document.getElementById("itemName").textContent = "該当商品がありません"
+                    }
 
-            };
+                };
 
-            request.send();
+                request.send();
+            }
+            else {
+                document.getElementById("itemName").textContent = null;
+                document.getElementById("itemPrice").textContent = null;
+                document.getElementById("janError").textContent = "JANコードの桁数が間違っています"
+            }
 
+        }
 
-
-            //document.getElementById("output").textContent = txt.textContent;
+        function allclear() {
+            document.getElementById("input").textContent = null;
+            document.getElementById("itemName").textContent = null;
+            document.getElementById("itemPrice").textContent = null;
+            document.getElementById("janError").textContent = null;
         }
 
     </script>

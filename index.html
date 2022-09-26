@@ -16,7 +16,9 @@
 
     <h1>入力画面</h1>
     <p>バーコードリーダーを使用してバーコードを読み取ってください。</p>
-    <input type="text" id="input" maxlength="13" >
+    <literal>
+    <input type="text" pattern="^[a-zA-Z0-9]+$" maxlength="13" id="input">
+    </literal>
 
     <button type="button" onclick="search()">
         確定
@@ -28,6 +30,7 @@
     <p id="janError"></p>
     <p>検索結果</p>
     <p>商品名</p><span id="itemName"></span>
+    <p>商品名:自動抽出</p><span id="itemName_auto"></span>
 
     <p>購入価格</p>
     <textarea id="itemPrice"></textarea>
@@ -39,17 +42,17 @@
 
         function search() {
             //JAN取得
-            var serarhkeyword = document.getElementById("input").value;
+            const serarhkeyword = document.getElementById("input").value;
 
             if (serarhkeyword.length == 13) {
                 document.getElementById("janError").textContent = null;
                 document.getElementById("itemPrice").textContent = null;
 
-                var request = new XMLHttpRequest();
+                const request = new XMLHttpRequest();
                 //アプリケーションID（楽天）
-                var applicationId = "1049198666783003336";
+                const applicationId = "1049198666783003336";
                 //リクエスト作成
-                var requestStr = "https://app.rakuten.co.jp/services/api/IchibaItem/" +
+                const requestStr = "https://app.rakuten.co.jp/services/api/IchibaItem/" +
                     "Search/20170706?format=json&keyword=" +
                     serarhkeyword + "&applicationId=" + applicationId;
 
@@ -57,7 +60,7 @@
                 request.responseType = 'json';
 
                 request.onload = function () {
-                    var data = this.response;
+                    const data = this.response;
                     //const from_json = JSON.parse(data);
 
                     // 確認用
@@ -65,6 +68,35 @@
 
                     if (data.Items.length != 0) {
                         document.getElementById("itemName").textContent = data.Items[0].Item.itemName;
+
+                        //30個格納
+                        const ItemNameArray = [];
+
+                        for (let i = 0; i < 30; i++) {
+                            ItemNameArray.push(data.Items[i].Item.itemName)
+                        }
+                        console.log(ItemNameArray)
+
+                        //比較したい
+                        for (let i = 0; i < ItemNameArray[0].length; i++) {
+                            for (let j = 4; j < ItemNameArray[0].length; j++) {
+                                const base = ItemNameArray[0].replace(/\s+/g, "").substr(i, j)
+                                try {
+                                    if ((ItemNameArray[1].replace(/\s+/g, "").match(base))) {
+                                        var result = (ItemNameArray[1].replace(/\s+/g, "").match(base))
+                                        console.log(result)
+                                    }
+                                    else {
+                                        break;
+                                    }
+                                } catch (e) {
+
+                                }
+                            }
+                            if (result)
+                                break;
+                        }
+                        document.getElementById("itemName_auto").textContent = result;
                     }
                     else {
                         document.getElementById("itemName").textContent = "該当商品がありません"
@@ -87,6 +119,7 @@
             document.getElementById("itemName").textContent = null;
             document.getElementById("itemPrice").textContent = null;
             document.getElementById("janError").textContent = null;
+            document.getElementById("itemName_auto").textContent = null;
         }
 
     </script>

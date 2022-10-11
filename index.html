@@ -17,7 +17,7 @@
     <h1>入力画面</h1>
     <p>バーコードリーダーを使用してバーコードを読み取ってください。</p>
     <literal>
-    <input type="text" pattern="^[a-zA-Z0-9]+$" maxlength="13" id="input">
+        <input type="text" pattern="^[a-zA-Z0-9]+$" maxlength="13" id="input">
     </literal>
 
     <button type="button" onclick="search()">
@@ -30,85 +30,126 @@
     <p id="janError"></p>
     <p>検索結果</p>
     <p>商品名</p><span id="itemName"></span>
-    <p>商品名:自動抽出</p><span id="itemName_auto"></span>
+    <p>商品名:自動抽出</p><textarea id="itemName_auto"></textarea>
 
+    <!--
     <p>購入価格</p>
     <textarea id="itemPrice"></textarea>
-    <button type="button" onclick="search()">
+        -->
+    <button type="button" onclick="add()">
         登録
     </button>
+    <p>azure_pw</p>
+    <literal>
+        <input type="text" id="azure_pw">
+    </literal>
+    <p>auth_add</p>
+    <literal>
+        <input type="text" id="auth_add">
+    </literal>
+    <p>auth_search</p>
+    <literal>
+        <input type="text" id="auth_search">
+    </literal>
 
     <script>
-
         function search() {
             //JAN取得
-            const serarhkeyword = document.getElementById("input").value;
+            const searchkeyword = document.getElementById("input").value;
+            const azure_pw = document.getElementById("azure_pw").value;
+            const auth_search = document.getElementById("auth_search").value;
 
-            if (serarhkeyword.length == 13) {
+            if (searchkeyword.length == 13) {
                 document.getElementById("janError").textContent = null;
-                document.getElementById("itemPrice").textContent = null;
+                //document.getElementById("itemPrice").textContent = null;
 
-                const request = new XMLHttpRequest();
-                //アプリケーションID（楽天）
-                const applicationId = "1049198666783003336";
-                //リクエスト作成
-                const requestStr = "https://app.rakuten.co.jp/services/api/IchibaItem/" +
-                    "Search/20170706?format=json&keyword=" +
-                    serarhkeyword + "&applicationId=" + applicationId;
 
-                request.open('GET', requestStr, true);
-                request.responseType = 'json';
 
-                request.onload = function () {
-                    const data = this.response;
-                    //const from_json = JSON.parse(data);
+                const request1 = new XMLHttpRequest();
+                //const requestStr = "http://localhost:7137/api/item_search?janCode=" + searchkeyword + "&password=" + azure_pw;
+                const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_search?janCode=" + searchkeyword +
+                    "&password=" + azure_pw + "&code=" + auth_search;
 
+                request1.open('GET', requestStr, false);
+                request1.onload = function () {
+                    const itemName_query = this.response;
                     // 確認用
-                    console.log(data);
+                    console.log(itemName_query);
 
-                    if (data.Items.length != 0) {
-                        document.getElementById("itemName").textContent = data.Items[0].Item.itemName;
+                    if (itemName_query == "") {
 
-                        //30個格納
-                        const ItemNameArray = [];
+                        const request = new XMLHttpRequest();
+                        //アプリケーションID（楽天）
+                        const applicationId = "1049198666783003336";
+                        //リクエスト作成
+                        const requestStr = "https://app.rakuten.co.jp/services/api/IchibaItem/" +
+                            "Search/20170706?format=json&keyword=" +
+                            searchkeyword + "&applicationId=" + applicationId;
 
-                        for (let i = 0; i < 30; i++) {
-                            ItemNameArray.push(data.Items[i].Item.itemName)
-                        }
-                        console.log(ItemNameArray)
+                        request.open('GET', requestStr, true);
+                        request.responseType = 'json';
 
-                        //比較したい
-                        for (let i = 0; i < ItemNameArray[0].length; i++) {
-                            for (let j = 4; j < ItemNameArray[0].length; j++) {
-                                const base = ItemNameArray[0].replace(/\s+/g, "").substr(i, j)
-                                try {
-                                    if ((ItemNameArray[1].replace(/\s+/g, "").match(base))) {
-                                        var result = (ItemNameArray[1].replace(/\s+/g, "").match(base))
-                                        console.log(result)
-                                    }
-                                    else {
-                                        break;
-                                    }
-                                } catch (e) {
+                        request.onload = function () {
+                            const data = this.response;
 
+                            // 確認用
+                            console.log(data);
+
+                            if (data.Items.length != 0) {
+                                document.getElementById("itemName").textContent = data.Items[0].Item.itemName;
+
+                                //30個格納
+                                const ItemNameArray = [];
+
+                                for (let i = 0; i < 30; i++) {
+                                    ItemNameArray.push(data.Items[i].Item.itemName)
                                 }
+                                console.log(ItemNameArray)
+                                /*
+                                //比較したい
+                                for (let i = 0; i < ItemNameArray[0].length; i++) {
+                                    for (let j = 4; j < ItemNameArray[0].length; j++) {
+                                        const base = ItemNameArray[0].replace(/\s+/g, "").substr(i, j)
+                                        try {
+                                            if ((ItemNameArray[1].replace(/\s+/g, "").match(base))) {
+                                                var result = (ItemNameArray[1].replace(/\s+/g, "").match(base))
+                                                console.log(result)
+                                            }
+                                            else {
+                                                break;
+                                            }
+                                        } catch (e) {
+
+                                        }
+                                    }
+                                    if (result)
+                                        break;
+                                }
+                                document.getElementById("itemName_auto").textContent = result;
+                                */
                             }
-                            if (result)
-                                break;
-                        }
-                        document.getElementById("itemName_auto").textContent = result;
+                            else {
+                                document.getElementById("itemName").textContent = "該当商品がありません";
+                            }
+
+                        };
+
+
+                        request.send();
+
                     }
                     else {
-                        document.getElementById("itemName").textContent = "該当商品がありません"
+                        document.getElementById("itemName").textContent = itemName_query;
                     }
+
 
                 };
 
-                request.send();
+                request1.send();
             }
             else {
                 document.getElementById("itemName").textContent = null;
-                document.getElementById("itemPrice").textContent = null;
+                //document.getElementById("itemPrice").textContent = null;
                 document.getElementById("janError").textContent = "JANコードの桁数が間違っています"
             }
 
@@ -117,10 +158,39 @@
         function allclear() {
             document.getElementById("input").value = null;
             document.getElementById("itemName").textContent = null;
-            document.getElementById("itemPrice").textContent = null;
+            //document.getElementById("itemPrice").textContent = null;
             document.getElementById("janError").textContent = null;
             document.getElementById("itemName_auto").textContent = null;
         }
+
+        function add() {
+            const janCode = document.getElementById("input").value;
+            const itemName = document.getElementById("itemName_auto").value;
+            const azure_pw = document.getElementById("azure_pw").value;
+            const auth_add = document.getElementById("auth_add").value;
+
+            const request = new XMLHttpRequest();
+            //const requestStr = "http://localhost:7137/api/item_add?janCode=" + janCode + "&itemName=" + itemName + "&password=" + azure_pw;
+            const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_add?janCode=" + janCode + "&itemName=" + itemName +
+                "&password=" + azure_pw + "&code=" + auth_add;
+
+            request.open('POST', requestStr, true);
+            /*
+            request.responseType = 'json';
+
+            request.onload = function () {
+                const data = this.response;
+
+                // 確認用
+                console.log(data);
+
+            };
+            */
+
+            request.send();
+
+        }
+
 
     </script>
 </body>

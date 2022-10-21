@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <title>照会画面</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <nav>
@@ -15,5 +16,149 @@
 
 
     <h1>照会画面</h1>
+    <p class="count"></p>
+    <table class="menu_list"></table>
+    <ul class="pagination">
+        <li id="prev" onclick="back()"><</li>
+        <li id="next" onclick="next()">></li>
+    </ul>
+
+
+    <button type="button" onclick="paging_start()">
+        確定
+    </button>
+    <script>
+
+        let start_number;
+        let end_number;
+
+        // ページング機能
+        const pagination = (data) => {
+            const ul = document.querySelector('.menu_list');
+            // 一度リストを空にする
+            while (ul.lastChild) {
+                ul.removeChild(ul.lastChild);
+            }
+            const first = 1;
+            const last = data.length;
+            data.forEach((item, i) => {
+                if (i < first - 1 || i > last) return;
+                let table = document.createElement('tr');
+                let td = document.createElement('td');
+                td.innerText = item.janCode;
+                table.appendChild(td);
+                let td2 = document.createElement('td');
+                td2.innerText = item.itemName;
+                table.appendChild(td2);
+                ul.appendChild(table);
+            });
+
+
+
+        }
+
+        function paging(start_number, end_number) {
+            try {
+                // db_pw取得
+                if (!localStorage.getItem('db_pw')) {
+                    const db_pw = document.getElementById("db_pw").value;
+                    if (db_pw == "") {
+                        window.alert("db_pwを入力してください");
+                        throw new Error('pw登録エラー');
+                    }
+                    else {
+                        localStorage.setItem('db_pw', db_pw);
+                        document.getElementById("db_pw").value = "登録済みです";
+                    }
+                }
+                else {
+                    db_pw = localStorage.getItem('db_pw');
+                }
+
+                // auth_code取得
+                if (!localStorage.getItem('auth_code')) {
+                    const auth_code = document.getElementById("auth_code").value;
+                    if (auth_code == "") {
+                        window.alert("auth_codeを入力してください");
+                        throw new Error('auth_code登録エラー');
+                    }
+                    else {
+                        localStorage.setItem('auth_code', auth_code);
+                        document.getElementById("auth_code").value = "登録済みです";
+                    }
+                }
+                else {
+                    auth_code = localStorage.getItem("auth_code");
+                }
+
+                const request = new XMLHttpRequest();
+                const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_paging?start_number=" + start_number + "&end_number=" + end_number +
+                    "&password=" + db_pw + "&code=" + auth_code;
+                request.open('GET', requestStr, true);
+                request.responseType = 'json';
+
+                request.onload = function () {
+                    const data = this.response;
+                    if (data == "jyuuhukuError") {
+                        window.alert("既に登録済みです");
+                    }
+                    else if (data == "pwError") {
+                        window.alert("パスワードが間違っています。");
+                    }
+                    else if (data == "otherError") {
+                        window.alert("致命的エラーです。");
+                    }
+                    else {
+                        var json_text = JSON.stringify(data);
+                        console.log(data);
+                        console.log(json_text);
+                        //window.alert("登録しました。");
+
+                        pagination(data);
+                    }
+                    // return json_text;
+
+                    // 確認用
+                    // console.log(data);
+
+                };
+
+                request.send();
+
+            } catch (e) {
+
+                console.log(e.message);
+
+            }
+
+        }
+
+        function paging_start() {
+            start_number = 1;
+            end_number = 10;
+            paging(1, 10);
+
+        }
+
+
+        function back() {
+            start_number -= 10;
+            end_number -= 10;
+            paging(start_number, end_number);
+
+        }
+
+
+        function next() {
+            start_number += 10;
+            end_number += 10;
+            paging(start_number, end_number);
+
+        }
+
+
+
+
+    </script>
 </body>
 </html>

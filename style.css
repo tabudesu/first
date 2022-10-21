@@ -1,0 +1,57 @@
+﻿body {
+}
+.menu_list {
+    height: 300px;
+}
+
+.pagination {
+    list-style: none;
+}
+
+    .pagination li {
+        display: inline-block;
+        margin: 0 0.5em;
+        cursor: pointer;
+    }
+.sample {
+    color: red;
+}
+.ul {
+    list-style: none;
+}
+.list {
+    right: 0px;
+    display: flex;
+    writing-mode: vertical-rl;
+}
+.item {
+    padding: 20px 0;
+}
+.box8 {
+    padding: 0.5em 1em;
+    margin: 2em 0;
+    color: #232323;
+    background: #fff8e8;
+    border-left: solid 10px #ffc06e;
+}
+
+    .box8 p {
+        margin: 0;
+        padding: 0;
+    }
+
+h1 {
+    color: #505050; /*文字色*/
+    padding: 0.5em; /*文字周りの余白*/
+    display: inline-block; /*おまじない*/
+    line-height: 1.3; /*行高*/
+    background: #dbebf8; /*背景色*/
+    vertical-align: middle;
+    border-radius: 25px 0px 0px 25px; /*左側の角を丸く*/
+}
+
+    h1:before {
+        content: '●';
+        color: white;
+        margin-right: 8px;
+    }

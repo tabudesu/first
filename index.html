@@ -91,7 +91,7 @@
                     const db_pw = document.getElementById("db_pw").value;
                     if (db_pw == "") {
                         window.alert("db_pwを入力してください");
-                        throw new Error('pw登録エラー');
+                        return;
                     }
                     else {
                         localStorage.setItem('db_pw', db_pw);
@@ -107,7 +107,7 @@
                     const auth_code = document.getElementById("auth_code").value;
                     if (auth_code == "") {
                         window.alert("auth_codeを入力してください");
-                        throw new Error('auth_code登録エラー');
+                        return;
                     }
                     else {
                         localStorage.setItem('auth_code', auth_code);
@@ -241,7 +241,7 @@
                     const db_pw = document.getElementById("db_pw").value;
                     if (db_pw == "") {
                         window.alert("db_pwを入力してください");
-                        throw new Error('pw登録エラー');
+                        return;
                     }
                     else {
                         localStorage.setItem('db_pw', db_pw);
@@ -257,7 +257,7 @@
                     const auth_code = document.getElementById("auth_code").value;
                     if (auth_code == "") {
                         window.alert("auth_codeを入力してください");
-                        throw new Error('auth_code登録エラー');
+                        return;
                     }
                     else {
                         localStorage.setItem('auth_code', auth_code);

@@ -20,13 +20,15 @@
     <table class="menu_list"></table>
     <ul class="pagination">
         <li id="prev" onclick="back()"><</li>
+        <ul class="page_number"></ul>
         <li id="next" onclick="next()">></li>
     </ul>
 
-
+    <!--
     <button type="button" onclick="paging_start()">
         確定
     </button>
+        -->
     <script>
 
         let start_number;
@@ -53,6 +55,38 @@
                 ul.appendChild(table);
             });
 
+            //目次
+            const request = new XMLHttpRequest();
+            const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_count?password=" + db_pw + "&code=" + auth_code;
+            request.open('GET', requestStr, true);
+            request.responseType = 'json';
+
+            request.onload = function () {
+                const count = this.response;
+                if (count == "jyuuhukuError") {
+                    window.alert("既に登録済みです");
+                }
+                else if (count == "pwError") {
+                    window.alert("パスワードが間違っています。");
+                }
+                else if (count == "otherError") {
+                    window.alert("致命的エラーです。");
+                }
+                else if (count.length == 0) {
+
+                }
+                else {
+                    const page = count / 10 + 1
+                    page_number(page);
+                }
+                // return json_text;
+
+                // 確認用
+                // console.log(data);
+
+            };
+
+            request.send();
 
 
         }
@@ -62,9 +96,9 @@
                 // db_pw取得
                 if (!localStorage.getItem('db_pw')) {
                     const db_pw = document.getElementById("db_pw").value;
-                    if (db_pw == "") {
+                    if (!db_pw) {
                         window.alert("db_pwを入力してください");
-                        throw new Error('pw登録エラー');
+                        return;
                     }
                     else {
                         localStorage.setItem('db_pw', db_pw);
@@ -80,7 +114,7 @@
                     const auth_code = document.getElementById("auth_code").value;
                     if (auth_code == "") {
                         window.alert("auth_codeを入力してください");
-                        throw new Error('auth_code登録エラー');
+                        return;
                     }
                     else {
                         localStorage.setItem('auth_code', auth_code);
@@ -112,7 +146,6 @@
                         var json_text = JSON.stringify(data);
                         console.log(data);
                         console.log(json_text);
-                        //window.alert("登録しました。");
 
                         pagination(data);
                     }
@@ -133,6 +166,27 @@
 
         }
 
+        function page_number(count) {
+            const ul1 = document.querySelector('.page_number');
+            // 一度リストを空にする
+            while (ul1.lastChild) {
+                ul1.removeChild(ul1.lastChild);
+            }
+            for (var i = 1; i < count; i++) {
+                let li1 = document.createElement('li');
+                li1.innerText = i;
+                li1.setAttribute("id", i);
+                li1.setAttribute("onClick", "page_move(this.id)")
+                ul1.appendChild(li1);
+
+            }
+        }
+
+        function page_move(id) {
+            start_number = id * 10 - 9;
+            paging(start_number, end_number);
+        }
+
         function paging_start() {
             start_number = 1;
             end_number = 10;
@@ -143,7 +197,6 @@
 
         function back() {
             start_number -= 10;
-            end_number -= 10;
             paging(start_number, end_number);
 
         }
@@ -151,12 +204,11 @@
 
         function next() {
             start_number += 10;
-            end_number += 10;
             paging(start_number, end_number);
 
         }
 
-
+        window.onload = paging_start();
 
 
     </script>

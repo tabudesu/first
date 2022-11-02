@@ -63,6 +63,11 @@
     </button>
 
     <script>
+        window.onerror = function (message, file, line, col, error) {
+            var trace = printStackTrace({ e: error });
+            alert(trace.join('\n\n'));
+            return true;
+        };
         
         //window.onload = onLoad;
         function onLoad() {
@@ -84,144 +89,136 @@
 
 
         function search() {
-
-            try {
-                // db_pw取得
-                if (!localStorage.getItem('db_pw')) {
-                    const db_pw = document.getElementById("db_pw").value;
-                    if (db_pw == "") {
-                        window.alert("db_pwを入力してください");
-                        return;
-                    }
-                    else {
-                        localStorage.setItem('db_pw', db_pw);
-                        document.getElementById("db_pw").value = "登録済みです";
-                    }
+            // db_pw取得
+            if (!localStorage.getItem('db_pw')) {
+                const db_pw = document.getElementById("db_pw").value;
+                if (!db_pw) {
+                    window.alert("db_pwを入力してください");
+                    return;
                 }
                 else {
-                    db_pw = localStorage.getItem('db_pw');
+                    localStorage.setItem('db_pw', db_pw);
+                    document.getElementById("db_pw").value = "登録済みです";
                 }
+            }
+            else {
+                db_pw = localStorage.getItem('db_pw');
+            }
 
-                // auth_code取得
-                if (!localStorage.getItem('auth_code')) {
-                    const auth_code = document.getElementById("auth_code").value;
-                    if (auth_code == "") {
-                        window.alert("auth_codeを入力してください");
-                        return;
-                    }
-                    else {
-                        localStorage.setItem('auth_code', auth_code);
-                        document.getElementById("auth_code").value = "登録済みです";
-                    }
+            // auth_code取得
+            if (!localStorage.getItem('auth_code')) {
+                const auth_code = document.getElementById("auth_code").value;
+                if (!auth_code) {
+                    window.alert("auth_codeを入力してください");
+                    return;
                 }
                 else {
-                    auth_code = localStorage.getItem('auth_code');
+                    localStorage.setItem('auth_code', auth_code);
+                    document.getElementById("auth_code").value = "登録済みです";
                 }
+            }
+            else {
+                auth_code = localStorage.getItem('auth_code');
+            }
 
-                //JAN取得
-                const searchkeyword = document.getElementById("input").value;
+            //JAN取得
+            const searchkeyword = document.getElementById("input").value;
 
-                if (searchkeyword.length == 13) {
-                    document.getElementById("janError").textContent = null;
-                    //document.getElementById("itemPrice").textContent = null;
+            if (searchkeyword.length == 13) {
+                document.getElementById("janError").textContent = null;
+                //document.getElementById("itemPrice").textContent = null;
 
 
 
-                    const request1 = new XMLHttpRequest();
-                    //const requestStr = "http://localhost:7137/api/item_search?janCode=" + searchkeyword + "&password=" + db_pw;
-                    const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_search?janCode=" + searchkeyword +
-                        "&password=" + db_pw + "&code=" + auth_code;
+                const request1 = new XMLHttpRequest();
+                //const requestStr = "http://localhost:7137/api/item_search?janCode=" + searchkeyword + "&password=" + db_pw;
+                const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_search?janCode=" + searchkeyword +
+                    "&password=" + db_pw + "&code=" + auth_code;
 
-                    request1.open('GET', requestStr, false);
-                    request1.onload = function () {
-                        const itemName_query = this.response;
-                        // 確認用
-                        console.log(itemName_query);
+                request1.open('GET', requestStr, false);
+                request1.onload = function () {
+                    const itemName_query = this.response;
+                    // 確認用
+                    console.log(itemName_query);
 
-                        if (itemName_query == "") {
+                    if (itemName_query == "") {
 
-                            const request = new XMLHttpRequest();
-                            //アプリケーションID（楽天）
-                            const applicationId = "1049198666783003336";
-                            //リクエスト作成
-                            const requestStr = "https://app.rakuten.co.jp/services/api/IchibaItem/" +
-                                "Search/20170706?format=json&keyword=" +
-                                searchkeyword + "&applicationId=" + applicationId;
+                        const request = new XMLHttpRequest();
+                        //アプリケーションID（楽天）
+                        const applicationId = "1049198666783003336";
+                        //リクエスト作成
+                        const requestStr = "https://app.rakuten.co.jp/services/api/IchibaItem/" +
+                            "Search/20170706?format=json&keyword=" +
+                            searchkeyword + "&applicationId=" + applicationId;
 
-                            request.open('GET', requestStr, true);
-                            request.responseType = 'json';
+                        request.open('GET', requestStr, true);
+                        request.responseType = 'json';
 
-                            request.onload = function () {
-                                const data = this.response;
+                        request.onload = function () {
+                            const data = this.response;
 
-                                // 確認用
-                                console.log(data);
+                            // 確認用
+                            console.log(data);
 
-                                if (data.Items.length != 0) {
-                                    document.getElementById("itemName").textContent = data.Items[0].Item.itemName;
+                            if (data.Items.length != 0) {
+                                document.getElementById("itemName").textContent = data.Items[0].Item.itemName;
 
-                                    //30個格納
-                                    const ItemNameArray = [];
+                                //30個格納
+                                const ItemNameArray = [];
 
-                                    for (let i = 0; i < 30; i++) {
-                                        ItemNameArray.push(data.Items[i].Item.itemName)
-                                    }
-                                    console.log(ItemNameArray)
-                                    /*
-                                    //比較したい
-                                    for (let i = 0; i < ItemNameArray[0].length; i++) {
-                                        for (let j = 4; j < ItemNameArray[0].length; j++) {
-                                            const base = ItemNameArray[0].replace(/\s+/g, "").substr(i, j)
-                                            try {
-                                                if ((ItemNameArray[1].replace(/\s+/g, "").match(base))) {
-                                                    var result = (ItemNameArray[1].replace(/\s+/g, "").match(base))
-                                                    console.log(result)
-                                                }
-                                                else {
-                                                    break;
-                                                }
-                                            } catch (e) {
-    
+                                for (let i = 0; i < 30; i++) {
+                                    ItemNameArray.push(data.Items[i].Item.itemName)
+                                }
+                                console.log(ItemNameArray)
+                                /*
+                                //比較したい
+                                for (let i = 0; i < ItemNameArray[0].length; i++) {
+                                    for (let j = 4; j < ItemNameArray[0].length; j++) {
+                                        const base = ItemNameArray[0].replace(/\s+/g, "").substr(i, j)
+                                        try {
+                                            if ((ItemNameArray[1].replace(/\s+/g, "").match(base))) {
+                                                var result = (ItemNameArray[1].replace(/\s+/g, "").match(base))
+                                                console.log(result)
                                             }
+                                            else {
+                                                break;
+                                            }
+                                        } catch (e) {
+    
                                         }
-                                        if (result)
-                                            break;
                                     }
-                                    document.getElementById("itemName_auto").textContent = result;
-                                    */
+                                    if (result)
+                                        break;
                                 }
-                                else {
-                                    document.getElementById("itemName").textContent = "該当商品がありません";
-                                }
+                                document.getElementById("itemName_auto").textContent = result;
+                                */
+                            }
+                            else {
+                                document.getElementById("itemName").textContent = "該当商品がありません";
+                            }
 
-                            };
-
-
-                            request.send();
-
-                        }
-                        else if (itemName_query == "pwError") {
-                            window.alert("パスワードが間違っています。");
-                        }
-                        else {
-                            document.getElementById("itemName").textContent = itemName_query;
-                        }
+                        };
 
 
-                    };
+                        request.send();
 
-                    request1.send();
-                }
-                else {
-                    document.getElementById("itemName").textContent = null;
-                    //document.getElementById("itemPrice").textContent = null;
-                    document.getElementById("janError").textContent = "JANコードの桁数が間違っています"
-                }
+                    }
+                    else if (itemName_query == "pwError") {
+                        window.alert("パスワードが間違っています。");
+                    }
+                    else {
+                        document.getElementById("itemName").textContent = itemName_query;
+                    }
 
-            } catch (e) {
 
-                console.log(e.message);
+                };
 
+                request1.send();
+            }
+            else {
+                document.getElementById("itemName").textContent = null;
+                //document.getElementById("itemPrice").textContent = null;
+                document.getElementById("janError").textContent = "JANコードの桁数が間違っています"
             }
 
         }
@@ -235,79 +232,72 @@
         }
 
         function add() {
-            try {
-                // db_pw取得
-                if (!localStorage.getItem('db_pw')) {
-                    const db_pw = document.getElementById("db_pw").value;
-                    if (db_pw == "") {
-                        window.alert("db_pwを入力してください");
-                        return;
-                    }
-                    else {
-                        localStorage.setItem('db_pw', db_pw);
-                        document.getElementById("db_pw").value = "登録済みです";
-                    }
+            // db_pw取得
+            if (!localStorage.getItem('db_pw')) {
+                const db_pw = document.getElementById("db_pw").value;
+                if (!db_pw) {
+                    window.alert("db_pwを入力してください");
+                    return;
                 }
                 else {
-                    db_pw = localStorage.getItem('db_pw');
+                    localStorage.setItem('db_pw', db_pw);
+                    document.getElementById("db_pw").value = "登録済みです";
                 }
-
-                // auth_code取得
-                if (!localStorage.getItem('auth_code')) {
-                    const auth_code = document.getElementById("auth_code").value;
-                    if (auth_code == "") {
-                        window.alert("auth_codeを入力してください");
-                        return;
-                    }
-                    else {
-                        localStorage.setItem('auth_code', auth_code);
-                        document.getElementById("auth_code").value = "登録済みです";
-                    }
-                }
-                else {
-                    auth_code = localStorage.getItem("auth_code");
-                }
-
-
-
-                const janCode = document.getElementById("input").value;
-                const itemName = document.getElementById("itemName_auto").value;
-
-                const request = new XMLHttpRequest();
-                //const requestStr = "http://localhost:7137/api/item_add?janCode=" + janCode + "&itemName=" + itemName + "&password=" + db_pw;
-                const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_add?janCode=" + janCode + "&itemName=" + itemName +
-                    "&password=" + db_pw + "&code=" + auth_code;
-
-                request.open('POST', requestStr, true);
-
-
-                request.onload = function () {
-                    const data = this.response;
-                    if (data == "jyuuhukuError") {
-                        window.alert("既に登録済みです");
-                    }
-                    else if (data == "pwError") {
-                        window.alert("パスワードが間違っています。");
-                    }
-                    else if (data == "otherError") {
-                        window.alert("致命的エラーです。");
-                    }
-                    else if (data == "1") {
-                        window.alert("登録しました。");
-                    }
-
-                    // 確認用
-                    // console.log(data);
-
-                };
-
-                request.send();
-
-            } catch (e) {
-
-                console.log(e.message);
-
             }
+            else {
+                db_pw = localStorage.getItem('db_pw');
+            }
+
+            // auth_code取得
+            if (!localStorage.getItem('auth_code')) {
+                const auth_code = document.getElementById("auth_code").value;
+                if (!auth_code) {
+                    window.alert("auth_codeを入力してください");
+                    return;
+                }
+                else {
+                    localStorage.setItem('auth_code', auth_code);
+                    document.getElementById("auth_code").value = "登録済みです";
+                }
+            }
+            else {
+                auth_code = localStorage.getItem("auth_code");
+            }
+
+
+
+            const janCode = document.getElementById("input").value;
+            const itemName = document.getElementById("itemName_auto").value;
+
+            const request = new XMLHttpRequest();
+            //const requestStr = "http://localhost:7137/api/item_add?janCode=" + janCode + "&itemName=" + itemName + "&password=" + db_pw;
+            const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_add?janCode=" + janCode + "&itemName=" + itemName +
+                "&password=" + db_pw + "&code=" + auth_code;
+
+            request.open('POST', requestStr, true);
+
+
+            request.onload = function () {
+                const data = this.response;
+                if (data == "jyuuhukuError") {
+                    window.alert("既に登録済みです");
+                }
+                else if (data == "pwError") {
+                    window.alert("パスワードが間違っています。");
+                }
+                else if (data == "otherError") {
+                    window.alert("致命的エラーです。");
+                }
+                else if (data == "1") {
+                    window.alert("登録しました。");
+                }
+
+                // 確認用
+                // console.log(data);
+
+            };
+
+            request.send();
 
         }
 

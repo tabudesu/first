@@ -92,77 +92,71 @@
         }
 
         function paging(start_number, end_number) {
-            try {
-                // db_pw取得
-                if (!localStorage.getItem('db_pw')) {
-                    const db_pw = document.getElementById("db_pw").value;
-                    if (!db_pw) {
-                        window.alert("db_pwを入力してください");
-                        return;
-                    }
-                    else {
-                        localStorage.setItem('db_pw', db_pw);
-                        document.getElementById("db_pw").value = "登録済みです";
-                    }
+            
+            // db_pw取得
+            if (!localStorage.getItem('db_pw')) {
+                const db_pw = document.getElementById("db_pw").value;
+                if (!db_pw) {
+                    window.alert("db_pwを入力してください");
+                    return;
                 }
                 else {
-                    db_pw = localStorage.getItem('db_pw');
+                    localStorage.setItem('db_pw', db_pw);
+                    document.getElementById("db_pw").value = "登録済みです";
                 }
-
-                // auth_code取得
-                if (!localStorage.getItem('auth_code')) {
-                    const auth_code = document.getElementById("auth_code").value;
-                    if (auth_code == "") {
-                        window.alert("auth_codeを入力してください");
-                        return;
-                    }
-                    else {
-                        localStorage.setItem('auth_code', auth_code);
-                        document.getElementById("auth_code").value = "登録済みです";
-                    }
-                }
-                else {
-                    auth_code = localStorage.getItem("auth_code");
-                }
-
-                const request = new XMLHttpRequest();
-                const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_paging?start_number=" + start_number + "&end_number=" + end_number +
-                    "&password=" + db_pw + "&code=" + auth_code;
-                request.open('GET', requestStr, true);
-                request.responseType = 'json';
-
-                request.onload = function () {
-                    const data = this.response;
-                    if (data == "jyuuhukuError") {
-                        window.alert("既に登録済みです");
-                    }
-                    else if (data == "pwError") {
-                        window.alert("パスワードが間違っています。");
-                    }
-                    else if (data == "otherError") {
-                        window.alert("致命的エラーです。");
-                    }
-                    else {
-                        var json_text = JSON.stringify(data);
-                        console.log(data);
-                        console.log(json_text);
-
-                        pagination(data);
-                    }
-                    // return json_text;
-
-                    // 確認用
-                    // console.log(data);
-
-                };
-
-                request.send();
-
-            } catch (e) {
-
-                console.log(e.message);
-
             }
+            else {
+                db_pw = localStorage.getItem('db_pw');
+            }
+
+            // auth_code取得
+            if (!localStorage.getItem('auth_code')) {
+                const auth_code = document.getElementById("auth_code").value;
+                if (!auth_code) {
+                    window.alert("auth_codeを入力してください");
+                    return;
+                }
+                else {
+                    localStorage.setItem('auth_code', auth_code);
+                    document.getElementById("auth_code").value = "登録済みです";
+                }
+            }
+            else {
+                auth_code = localStorage.getItem("auth_code");
+            }
+
+            const request = new XMLHttpRequest();
+            const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_paging?start_number=" + start_number + "&end_number=" + end_number +
+                "&password=" + db_pw + "&code=" + auth_code;
+            request.open('GET', requestStr, true);
+            request.responseType = 'json';
+
+            request.onload = function () {
+                const data = this.response;
+                if (data == "jyuuhukuError") {
+                    window.alert("既に登録済みです");
+                }
+                else if (data == "pwError") {
+                    window.alert("パスワードが間違っています。");
+                }
+                else if (data == "otherError") {
+                    window.alert("致命的エラーです。");
+                }
+                else {
+                    var json_text = JSON.stringify(data);
+                    console.log(data);
+                    console.log(json_text);
+
+                    pagination(data);
+                }
+                // return json_text;
+
+                // 確認用
+                // console.log(data);
+
+            };
+
+            request.send();
 
         }
 

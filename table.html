@@ -233,6 +233,8 @@
             localStorage.setItem('key', JSON.stringify(item));
 
             // 子ウィンドウを開く
+            const button = document.getElementById(id);
+            button.disabled = true;
             window.open('edit.html', 'child', 'location=no,scrollbars=yes');
             
 

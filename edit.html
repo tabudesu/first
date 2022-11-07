@@ -168,9 +168,8 @@
         }
 
 
-        function window.onbeforeunload(){
+        window.onunload = function () {
             window.opener.reload();
-
         }
 
 

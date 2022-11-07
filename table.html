@@ -46,12 +46,25 @@
             data.forEach((item, i) => {
                 if (i < first - 1 || i > last) return;
                 let table = document.createElement('tr');
+
                 let td = document.createElement('td');
                 td.innerText = item.janCode;
+                td.setAttribute("id", "janCode_" + i);
                 table.appendChild(td);
+
                 let td2 = document.createElement('td');
                 td2.innerText = item.itemName;
+                td2.setAttribute("id", "itemName_" + i);
                 table.appendChild(td2);
+
+                let td3 = document.createElement('td');
+                let btn = document.createElement('button')
+                btn.innerText = "編集"
+                btn.setAttribute("id", i);
+                btn.setAttribute("onClick", "edit(this.id)")
+                td3.appendChild(btn);
+                table.appendChild(td3);
+
                 ul.appendChild(table);
             });
 
@@ -202,7 +215,44 @@
 
         }
 
+        function reload() {
+            paging(start_number.end_number);
+        }
+
+        function edit(id) {
+            console.log(id);
+            console.log(document.getElementById("janCode_" + id).innerText);
+            console.log(document.getElementById("itemName_" + id).innerText);
+
+            // 子ウィンドウに渡したいデータを作成
+            const item = new Items();
+            item.janCode = document.getElementById("janCode_" + id).innerText;
+            item.itemName = document.getElementById("itemName_" + id).innerText;
+
+            // ローカルストレージにデータを格納します
+            localStorage.setItem('key', JSON.stringify(item));
+
+            // 子ウィンドウを開く
+            window.open('edit.html', 'child', 'location=no,scrollbars=yes');
+            
+
+            //window.open('edit.html', null, 'top=100,left=100,width=300,height=400');
+        }
+
+
+
         window.onload = paging_start();
+
+        class Items {
+
+            constructor(janCode, itemName) {
+                this.janCode = janCode;
+                this.itemName = itemName;
+            }
+
+        }
+
+
 
 
     </script>

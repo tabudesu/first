@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>編集画面</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <p id="janCode"></p>
+    <textarea id="itemName"></textarea>
+    <button type="button" onclick="edit()">
+        修正登録
+    </button>
+    <button type="button" onclick="delet()">
+        削除
+    </button>
+    <script>
+        // ローカルストレージ経由でデータを受け取る
+        const item = JSON.parse(localStorage.getItem('key'));
+        this.janCode = item.janCode;
+        this.itemName = item.itemName;
+        document.getElementById("janCode").textContent = janCode;
+        document.getElementById("itemName").textContent = itemName;
+
+
+        function edit() {
+            // db_pw取得
+            if (!localStorage.getItem('db_pw')) {
+                const db_pw = document.getElementById("db_pw").value;
+                if (!db_pw) {
+                    window.alert("db_pwを入力してください");
+                    return;
+                }
+                else {
+                    localStorage.setItem('db_pw', db_pw);
+                    document.getElementById("db_pw").value = "登録済みです";
+                }
+            }
+            else {
+                db_pw = localStorage.getItem('db_pw');
+            }
+
+            // auth_code取得
+            if (!localStorage.getItem('auth_code')) {
+                const auth_code = document.getElementById("auth_code").value;
+                if (!auth_code) {
+                    window.alert("auth_codeを入力してください");
+                    return;
+                }
+                else {
+                    localStorage.setItem('auth_code', auth_code);
+                    document.getElementById("auth_code").value = "登録済みです";
+                }
+            }
+            else {
+                auth_code = localStorage.getItem("auth_code");
+            }
+
+
+
+            const janCode = document.getElementById("janCode").innerText;
+            const itemName = document.getElementById("itemName").value;
+
+            const request = new XMLHttpRequest();
+            //koko
+            const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_edit?janCode=" + janCode + "&itemName=" + itemName +
+                "&password=" + db_pw + "&code=" + auth_code;
+
+            request.open('POST', requestStr, true);
+
+
+            request.onload = function () {
+                const data = this.response;
+                if (data == "jyuuhukuError") {
+                    window.alert("既に登録済みです");
+                }
+                else if (data == "pwError") {
+                    window.alert("パスワードが間違っています。");
+                }
+                else if (data == "otherError") {
+                    window.alert("致命的エラーです。");
+                }
+                else if (data == "1") {
+                    window.alert("変更しました。");
+                    //window.opener.document.getElementById("next").submit();
+                    window.opener.reload();
+                    open('about:blank', '_self').close();
+                }
+
+                // 確認用
+                // console.log(data);
+
+            };
+
+            request.send();
+
+        }
+
+        function delet() {
+            // db_pw取得
+            if (!localStorage.getItem('db_pw')) {
+                const db_pw = document.getElementById("db_pw").value;
+                if (!db_pw) {
+                    window.alert("db_pwを入力してください");
+                    return;
+                }
+                else {
+                    localStorage.setItem('db_pw', db_pw);
+                    document.getElementById("db_pw").value = "登録済みです";
+                }
+            }
+            else {
+                db_pw = localStorage.getItem('db_pw');
+            }
+
+            // auth_code取得
+            if (!localStorage.getItem('auth_code')) {
+                const auth_code = document.getElementById("auth_code").value;
+                if (!auth_code) {
+                    window.alert("auth_codeを入力してください");
+                    return;
+                }
+                else {
+                    localStorage.setItem('auth_code', auth_code);
+                    document.getElementById("auth_code").value = "登録済みです";
+                }
+            }
+            else {
+                auth_code = localStorage.getItem("auth_code");
+            }
+
+
+
+            const janCode = document.getElementById("janCode").innerText;
+
+            const request = new XMLHttpRequest();
+            //koko
+            const requestStr = "https://tabunoki-functions.azurewebsites.net/api/item_delete?janCode=" + janCode  +
+                "&password=" + db_pw + "&code=" + auth_code;
+
+            request.open('POST', requestStr, true);
+
+
+            request.onload = function () {
+                const data = this.response;
+                if (data == "jyuuhukuError") {
+                    window.alert("既に登録済みです");
+                }
+                else if (data == "pwError") {
+                    window.alert("パスワードが間違っています。");
+                }
+                else if (data == "otherError") {
+                    window.alert("致命的エラーです。");
+                }
+                else if (data == "1") {
+                    window.alert("削除しました。");
+                    open('about:blank', '_self').close();
+                }
+
+                // 確認用
+                // console.log(data);
+
+            };
+
+            request.send();
+
+        }
+
+
+
+
+
+    </script>
+</body>
+</html>
